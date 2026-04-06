@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="Times-New-Roman">
+    <title>School Day Counter</title>
+    <link rel="icon" type="image/x-icon" href="display.png">
+    <style>
+        html {
+            text-align: center;
+            font-size: 40px;
+            background-color: white;
+            color: black;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body {
+            transition: background-color 0.3s, color 0.3s;
+        }
+        #display {
+            text-align: center;
+            font-size:87px;
+            margin-top: 0px;
+            border: 80px outset black;
+            background-color: white;
+            color: black;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Dark mode styles */
+        html.dark {
+            background-color: #2b2b2b;
+            color: #e8e8e8;
+        }
+        html.dark #display {
+            background-color: #2b2b2b;
+            color: #e8e8e8;
+        }
+        html.dark #toggle-btn {
+            background-color: #444;
+            color: #e8e8e8;
+            border-color: #666;
+        }
+    </style>
+</head>
+<body>
+    <button id="toggle-btn" onclick="toggleDark()">Dark Mode</button>
+    <p id="display">Loading...</p>
+    <p id="status"></p>
+    <p id="count"></p>
+<script>
+    function toggleDark() {
+        const html = document.documentElement;
+        const btn = document.getElementById("toggle-btn");
+        html.classList.toggle("dark");
+        if (html.classList.contains("dark")) {
+            btn.textContent = "Light Mode";
+        } else {
+            btn.textContent = "Dark Mode";
+        }
+    }
+        // ----- NO SCHOOL DAYS -----
+        const noSchoolDays = [
+            // september
+            "2025-09-01", "2025-09-02",
+            // october
+            "2025-10-13", "2025-10-14",
+            // november
+            "2025-11-10", "2025-11-11", "2025-11-24", "2025-11-25", "2025-11-26", "2025-11-27", "2025-11-28",
+            // December
+            "2025-12-22", "2025-12-23", "2025-12-24", "2025-12-25", "2025-12-26", "2025-12-29", "2025-12-30", "2025-12-31",
+            // January
+            "2026-01-01", "2026-01-02", "2026-01-05", "2026-01-19",
+            // February
+            "2026-02-16", "2026-02-17",
+            // March
+            "2026-03-16", "2026-03-17", "2026-03-18", "2026-03-19", "2026-03-20"
+        ];
+
+        // count
+        const startDate = new Date("2025-08-14T00:00:00");
+        const endDate = new Date("2026-05-21T00:00:00");
+        const totalDays = 171;
+
+        function isWeekend(date) {
+            const day = date.getDay();
+            return day === 0 || day === 6;
+        }
+
+        function isNoSchool(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return noSchoolDays.includes(`${y}-${m}-${d}`);
+        }
+
+        function isSchoolDay(date) {
+            return !isWeekend(date) && !isNoSchool(date);
+        }
+
+        function updateStats() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            let daysCompleted = 0;
+
+            if (today >= startDate) {
+                for (let d = new Date(startDate); d <= today && d <= endDate; d.setDate(d.getDate() + 1)) {
+                    if (isSchoolDay(d)) daysCompleted++;
+                }
+            }
+
+            const daysLeft = totalDays - daysCompleted;
+            const percentDoneNum = (daysCompleted / totalDays) * 100;
+            const percentDone = percentDoneNum.toFixed(1);
+            const percentLeft = (100 - percentDoneNum).toFixed(1);
+
+        document.getElementById("count").innerHTML = `
+            <b>${daysCompleted}</b> of <b>${totalDays}</b> school days completed.<br>
+            <b>${daysLeft}</b> days left.<br>
+            <b>${percentDone}%</b> done.<br>
+            <b>${percentLeft}%</b> left.
+        `;
+    }
+
+    // ----- DAILY COUNTER -----
+    var countDownDate = new Date("May 21, 2026 15:45:00").getTime();
+    var x = setInterval(function() {
+        var now = new Date().getTime();
+        var distance = countDownDate - now;
+
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        var display = document.getElementById("display");
+
+        if (distance <= 96 * 60 * 60 * 1000) {
+            display.style.fontSize = "180px";
+            display.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s";
+        } else {
+            display.style.fontSize = "";
+            display.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s " + "(including weekends and days off)";
+        }
+
+        updateStats();
+
+        if (distance < 0) {
+            clearInterval(x);
+            display.style.fontSize = "";
+            display.innerHTML = "Were Finaly Fucking Free";
+            document.getElementById("count").style.display = "none";
+        }
+
+        
+    }, 1000);
+</script>
+</body>
+</html>
